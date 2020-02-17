@@ -1205,24 +1205,40 @@ def DecodeInfoType6(DecData, infoType):
 			direction = DecData['frame']['infos']['measures'][1]['value']
 		except IndexError:
 			direction = "0"
-		if 22 <= int(direction) << 68 : 
+		if 11 <= int(direction) < 34 :
+			sens = 'NNE'
+		if 34 <= int(direction) < 56 :
 			sens = 'NE'
-		if 68 <= int(direction) << 112 : 
+		if 56 <= int(direction) < 79 :
+			sens = 'ENE'
+		if 79 <=  int(direction) < 101 :
 			sens = 'E'
-		if 112 <= int(direction) << 157 : 
+		if 101 <= int(direction) < 124 :
+			sens = 'ESE'
+		if 124 <= int(direction) < 146 :
 			sens = 'SE'
-		if 157 <= int(direction) <= 202 : 
+		if 146 <= int(direction) < 169 :
+			sens = 'SSE'
+		if 169 <= int(direction) < 191 :
 			sens = 'S'
-		if 202 <= int(direction) <= 247 : 
-			sens = 'SO'
-		if 247 <= int(direction) <= 292 : 
-			sens = 'O'
-		if 292 <= int(direction) <= 337 : 
-			sens = 'NO'
-		if 337 <= int(direction) or int(direction) <= 22 : 
+		if 191 <= int(direction) < 214 :
+			sens = 'SSW'
+		if 214 <= int(direction) < 236 :
+			sens = 'SW'
+		if 236 <= int(direction) < 259 :
+			sens = 'WSW'
+		if 259 <= int(direction) < 281 :
+			sens = 'W'
+		if 281 <= int(direction) < 304 :
+			sens = 'WNW'
+		if 304 <= int(direction) < 326 :
+			sens = 'NW'
+		if 326 <= int(direction) < 349 :
+			sens = 'NNW'
+		if 349 <= int(direction) < 11 :
 			sens = 'N'
-		
-		Wind = direction + ';' + sens + ';' + speed + ';0;0;0' #form need : 0;N;0;0;0;0
+	
+		Wind = direction + ';' + sens + ';' + str(float(speed)*10) + ';0;0;0' #form need : 0;N;0;0;0;0
 
 		Domoticz.Debug("id : " + id_PHY + " adr_channel : " + adr_channel)
 		Options = {"infoType":infoType, "id": str(id_PHY), "adr_channel": str(adr_channel), "protocol": str(protocol), "Wind" : "1"}
@@ -1284,7 +1300,7 @@ def DecodeInfoType7(DecData, infoType):
 						break
 		if IsCreated == False and Parameters["Mode4"] == "True":
 			nbrdevices=FreeUnit()
-			Domoticz.Device(Name="UV - " + adr_channel, Unit=nbrdevices, Type=80, Switchtype=0).Create()
+			Domoticz.Device(Name="UV - " + adr_channel, Unit=nbrdevices, Type=87, Switchtype=0).Create()
 			Devices[nbrdevices].Update(nValue = 0,sValue = str(int(UV)/10) + ';0',Options = Options)
 		elif IsCreated == True :
 			Devices[nbrdevices].Update(nValue = 0,sValue = str(int(UV)/10) + ';0')
@@ -1443,8 +1459,9 @@ def DecodeInfoType9(DecData, infoType):
 			CurrentRain = DecData['frame']['infos']['measures'][1]['value']
 		except IndexError:
 			CurrentRain = "0"
-		Domoticz.Debug("id : " + id_PHY + " adr_channel : " + adr_channel)
 		
+		InfoRain = str(float(CurrentRain)*100) + ';' + TotalRain
+		Domoticz.Debug("id : " + id_PHY + " adr_channel : " + adr_channel + " InfoRain : " + InfoRain)
 		Options = {"infoType":infoType, "id": str(id_PHY), "adr_channel": str(adr_channel), "protocol": str(protocol), "Temp" : "1"}
 		Domoticz.Debug("Options to find or set : " + str(Options))
 		for x in Devices:
@@ -1463,9 +1480,9 @@ def DecodeInfoType9(DecData, infoType):
 		if IsCreated == False and Parameters["Mode4"] == "True":
 			nbrdevices=FreeUnit()
 			Domoticz.Device(Name="Rain - " + adr_channel, Unit=nbrdevices, Type=85, Switchtype=0).Create()
-			Devices[nbrdevices].Update(nValue = 0,sValue = str(CurrentRain),Options = Options)
+			Devices[nbrdevices].Update(nValue = 0,sValue = str(InfoRain),Options = Options)
 		elif IsCreated == True :
-			Devices[nbrdevices].Update(nValue = 0,sValue = str(CurrentRain))
+			Devices[nbrdevices].Update(nValue = 0,sValue = str(InfoRain))
 	except:
 		Domoticz.Log("Error while decoding Infotype9 frame")
 		return
